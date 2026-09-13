@@ -241,6 +241,7 @@ Les valeurs présentes dans le fichier `.env` local ne sont pas automatiquement 
 | `CLOUDINARY_API_SECRET` | Secret | Signature des opérations Cloudinary |
 | `NUXT_SESSION_PASSWORD` | Secret | Chiffrement et signature des sessions |
 | `NUXT_BOOTSTRAP_SECRET` | Secret temporaire | Création contrôlée du premier administrateur, puis suppression |
+| `CLOUDFLARE_D1_DATABASE_ID` | Variable | Identifiant public de la base D1 utilisée par NuxtHub |
 
 ### Procédure
 

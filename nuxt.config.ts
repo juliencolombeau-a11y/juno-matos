@@ -8,7 +8,15 @@ export default defineNuxtConfig({
     'vuetify-nuxt-module',
   ],
   hub: {
-    db: 'sqlite',
+    db: process.env.CLOUDFLARE_D1_DATABASE_ID
+      ? {
+          dialect: 'sqlite',
+          driver: 'd1',
+          connection: {
+            databaseId: process.env.CLOUDFLARE_D1_DATABASE_ID,
+          },
+        }
+      : 'sqlite',
     blob: false,
   },
   cloudinary: {

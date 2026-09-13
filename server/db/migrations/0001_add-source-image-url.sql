@@ -1,0 +1,1 @@
+ALTER TABLE `materials` ADD `source_image_url` text;

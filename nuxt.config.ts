@@ -1,19 +1,33 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: [
     '@nuxthub/core',
-  '@nuxtjs/cloudinary'
-],
-// Configuration NuxtHub
+    '@nuxtjs/cloudinary',
+    'nuxt-auth-utils',
+    'vuetify-nuxt-module',
+  ],
   hub: {
-    db: 'sqlite', // Active la base de données SQL
-    blob: false,  // Inutile ici car tu utilises Cloudinary pour les fichiers
+    db: 'sqlite',
+    blob: false,
   },
-
-  // Configuration Cloudinary
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME
-  }
+  },
+  vuetify: {
+    moduleOptions: {
+      prefixComposables: ['useLayout'],
+    },
+  },
+  runtimeConfig: {
+    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+    bootstrapSecret: process.env.NUXT_BOOTSTRAP_SECRET,
+    session: {
+      password: process.env.NUXT_SESSION_PASSWORD || '',
+    },
+    public: {
+      cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    },
+  },
 })

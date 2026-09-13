@@ -15,11 +15,19 @@
     "@nuxtjs/cloudinary": "^4.0.0",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
-    "nuxt": "^4.5.2",
+    "nuxt-auth-utils": "^0.5.30",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "add": "^2.0.9",
+    "module": "^2.0.0",
+    "npx": "^10.2.2",
+    "nuxt": "^4.5.2",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.9",
+    "vuetify": "^4.2.1",
+    "vuetify-nuxt-module": "^1.0.0-rc.6",
+    "xlsx": "^0.18.5"
   }
 }

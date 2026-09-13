@@ -255,6 +255,8 @@ Les valeurs présentes dans le fichier `.env` local ne sont pas automatiquement 
 
 Les mêmes noms doivent être utilisés dans Nuxt afin que le code serveur fonctionne sans différence entre local et production. Le fichier `.env` local doit rester ignoré par Git ; seul un fichier `.env.example` contenant les noms sans les valeurs peut être partagé.
 
+Le dépôt contient également `wrangler.jsonc`, qui déclare la base D1 `juno-matos-db` pour les commandes Wrangler et le déploiement Cloudflare.
+
 En local sous Windows, utiliser `http://localhost:3000` pour les commandes et les tests d'authentification. Dans l'environnement de développement utilisé pour ce projet, `localhost` fonctionne alors que `127.0.0.1` peut ne pas être joignable.
 
 Les clés Cloudinary ne doivent pas être placées dans le code client, dans `runtimeConfig.public`, dans `roadmap.md` ou dans un dépôt GitHub. La clé API et le secret servent désormais aux opérations d'image effectuées par l'application ; ils peuvent être renouvelés depuis Cloudinary si leur exposition est suspectée.

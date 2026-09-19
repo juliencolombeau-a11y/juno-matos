@@ -2,13 +2,5 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "juno-matos",
   "compatibility_date": "2025-07-15",
-  "compatibility_flags": ["nodejs_compat"],
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "juno-matos-db",
-      "database_id": "fd36eea8-afac-4105-80d8-fdd7c114722b",
-      "migrations_dir": "server/db/migrations"
-    }
-  ]
+  "compatibility_flags": ["nodejs_compat"]
 }

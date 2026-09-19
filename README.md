@@ -50,7 +50,7 @@ Configure these values in the Cloudflare Workers & Pages project for the Product
 
 ## D1 migrations and data transfer
 
-`wrangler.jsonc` declares the production database `juno-matos-db` and the migration directory. Apply schema migrations with:
+NuxtHub generates the production D1 binding from `CLOUDFLARE_D1_DATABASE_ID` during the build. Apply schema migrations with:
 
 ```powershell
 npx wrangler d1 migrations apply juno-matos-db --remote

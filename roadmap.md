@@ -296,7 +296,7 @@ Les valeurs présentes dans le fichier `.env` local ne sont pas automatiquement 
 
 Les mêmes noms doivent être utilisés dans Nuxt afin que le code serveur fonctionne sans différence entre local et production. Le fichier `.env` local doit rester ignoré par Git ; seul un fichier `.env.example` contenant les noms sans les valeurs peut être partagé.
 
-Le dépôt contient également `wrangler.jsonc`, qui déclare la base D1 `juno-matos-db` pour les commandes Wrangler et le déploiement Cloudflare.
+Le dépôt contient également `wrangler.jsonc`, qui contient les réglages généraux Wrangler. NuxtHub génère le binding D1 de production à partir de `CLOUDFLARE_D1_DATABASE_ID` afin d'éviter une double déclaration lors du déploiement.
 
 Le transfert initial des données locales vers D1 utilise le script ponctuel `npm run data:export`, puis `npx wrangler d1 execute juno-matos-db --remote --file .data/d1-data.sql`. Le fichier généré reste dans `.data`, qui est exclu de Git, et contient les matériels, références et utilisateurs sans exposer ces données dans le dépôt.
 

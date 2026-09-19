@@ -32,7 +32,7 @@ La base D1 `juno-matos-db` contient :
 - 13 valeurs d'âge ;
 - les références Cloudinary des images migrées.
 
-Les migrations `0000_initial-schema.sql` et `0001_add-source-image-url.sql` sont appliquées. `wrangler.jsonc` déclare la base et le dossier de migrations.
+Les migrations `0000_initial-schema.sql` et `0001_add-source-image-url.sql` sont appliquées. NuxtHub génère le binding D1 de production à partir de `CLOUDFLARE_D1_DATABASE_ID`.
 
 ## Environnement local
 

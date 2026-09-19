@@ -1,60 +1,44 @@
-# Juno-Matos - Instructions et Suivi de Projet
+# Juno-Matos — Instructions et suivi
 
-Ce fichier sert à conserver l'historique de notre travail, les décisions d'architecture prises, et à guider le développement de l'application **Juno-Matos**.
+## Référence du projet
 
-## 📋 Présentation du Projet
+Juno-Matos est une application Nuxt 4 responsive de consultation et de gestion de matériel pédagogique.
 
-L'application **Juno-Matos** permet de lister, rechercher, ajouter, modifier et supprimer du matériel pédagogique.
-- **Utilisateurs cibles** : Public (consultation), Éditeurs (gestion du matériel).
-- **Plateformes** : Web responsive (compatible desktop, tablette, mobile).
-- **Architecture de déploiement** : Nuxt 4 + NuxtHub (SQLite local et de production hébergé sur Cloudflare D1) + Hébergement Cloudflare Pages + Gestion d'images Cloudinary.
+- Le public consulte le catalogue sans compte.
+- Les utilisateurs authentifiés créent, modifient et suppriment les matériels.
+- Les rôles disponibles sont `admin` et `editor`.
+- Les données locales utilisent NuxtHub DB avec SQLite.
+- La production utilise Cloudflare D1.
+- Les images utilisent Cloudinary.
 
----
+## Règles de sécurité
 
-## 🛠️ Pile Technologique & Architecture
+1. Toutes les écritures passent par des routes serveur protégées par session.
+2. Les rôles sont vérifiés côté serveur ; l'interface ne constitue pas une protection.
+3. `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` et `NUXT_SESSION_PASSWORD` ne doivent jamais apparaître dans le client, le dépôt ou les réponses API.
+4. Le fichier `.env` reste local et ignoré par Git.
+5. `NUXT_BOOTSTRAP_SECRET` sert uniquement à créer le premier administrateur et doit être supprimé immédiatement après.
+6. Les uploads passent par `/api/media/image`, qui valide le type et limite la taille à 15 Mo.
 
-- **Framework** : Nuxt 4 (Structure avec dossier `/app` et `/server`).
-- **Base de données** : SQLite gérée via **Drizzle ORM** et **NuxtHub DB**.
-- **Gestion d'images** : **Cloudinary** via le module `@nuxtjs/cloudinary`.
-- **Authentification** : Sessions sécurisées côté serveur (via BFF) à l'aide de `nuxt-auth-utils` ou de sessions sécurisées personnalisées.
-- **Style / UI** : À définir (Nuxt UI ou Vuetify selon choix utilisateur).
+## État au 13 septembre 2026
 
----
+Le catalogue public, l'authentification, l'API CRUD, l'interface éditeur et l'upload Cloudinary sont implémentés. La base D1 `juno-matos-db` est créée, les deux migrations sont appliquées et les données locales sont transférées.
 
-## 💾 Schéma de Base de Données (Projeté)
+Le transfert de production contient 289 matériels, les tables de référence, un administrateur et les références Cloudinary existantes. Aucun nouvel import Excel n'est prévu.
 
-### Table Principale : `materials`
-- `id` : `integer().primaryKey()` (conserve les IDs du fichier Excel pour maintenir l'intégrité).
-- `nom` : `text().notNull()` (nom du matériel).
-- `domaine` : `text()` (catégorie, ex : "mathématiques").
-- `type` : `text()` (format, ex : "cartes").
-- `theme` : `text()` (thème, ex : "animaux familiers").
-- `ageMin` : `integer()` (âge minimum).
-- `nbreMin` : `integer()` (nombre de joueurs minimum).
-- `nbreMax` : `integer()` (nombre de joueurs maximum).
-- `cloudinaryPublicId` : `text()` (ID de l'image Cloudinary).
-- `cloudinaryUrl` : `text()` (URL de l'image Cloudinary).
-- `lieu` : `text()` (lieu de stockage).
-- `description` : `text()` (description textuelle).
+## Commandes importantes
 
-### Tables de Référence (Listes déroulantes)
-Pour alimenter les formulaires de création et de filtre :
-- `domaines` : `id` (text), `nom` (text)
-- `types` : `id` (text), `nom` (text)
-- `themes` : `nom` (text, clé unique)
-- `lieux` : `id` (integer), `nom` (text)
-- `ages` : `id` (text), `nom` (integer/text)
+```powershell
+npm run dev
+npx nuxt typecheck
+npm run build
+npx wrangler d1 migrations apply juno-matos-db --remote
+npm run data:export
+npx wrangler d1 execute juno-matos-db --remote --file .data/d1-data.sql --yes
+```
 
----
+Sous Windows, utiliser `http://localhost:3000` pour les tests locaux.
 
-## 🚀 Bonnes Pratiques de Développement
+## Reprise du travail
 
-1. **Sécurité BFF (Backend-For-Frontend)** : 
-   - Toutes les requêtes d'écriture (POST, PUT, DELETE) doivent être sécurisées par un middleware d'authentification Nuxt qui valide la session côté serveur.
-   - Pas de clés d'API Cloudinary ou de secrets d'authentification exposés dans le code client.
-2. **Gestion Cloudinary** :
-   - Les téléchargements depuis l'application se feront via une API Nuxt sécurisée qui génère des signatures temporaires d'upload (Secure Upload Presets) ou effectue l'upload directement côté serveur.
-3. **Responsive et Mobile First** :
-   - Interface épurée et optimisée pour les smartphones (prise de photo via l'appareil photo natif).
-4. **Intégrité de la migration** :
-   - Le script de migration doit être idempotent (pouvoir être relancé sans dupliquer les enregistrements ni ré-uploader les images déjà présentes dans Cloudinary).
+Consulter `roadmap.md` pour la liste des tâches. Les priorités restantes sont les tests de production, la revue d'accessibilité, la vérification Cloudflare de `nuxt-auth-utils`, puis l'administration des utilisateurs.

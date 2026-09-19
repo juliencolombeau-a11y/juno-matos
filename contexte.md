@@ -1,40 +1,49 @@
-# projet juno-matos
+# Contexte du projet Juno-Matos
 
-Ce projet a pour objectif de mettre à disposition une application permettant de voir/ajouter/modifier du matériel pédagogique. Il faudra que cette application soit utilisable en application bureau ou mobile, elle devra être responsive.
+Juno-Matos fournit un catalogue responsive de matériel pédagogique. Le public consulte les fiches sans compte. Les éditeurs authentifiés ajoutent, modifient et suppriment les matériels et leurs images.
 
-## existant
-Il existe déjà plusieurs choses à réutiliser ou à modifier.
-### une base de données
-Le matériel pédagogique a déjà commencé à etre répertorié, il est disponible dans un fichier excel MatosPeda.xlsx. La feuille 'matos' est la table principale. Les autres feuilles sont des aides pour la feuille principale notamment pour les menus déroulants. Il y a des App:logins et des colonnes softr qui ne serviront plus.
-### des images
-Il y a des images reliées au matériel par une adresse mail. Pour l'instant ces images sont deposées dans google drive mais l'objectif est de les transférer vers cloudinary en conservant le lien sans devoir tout refaire à la main. J'ai déjà un compte cloudinary.
+## Décisions validées
 
-## fonctionnalités voulues
-### authentification
-Il faudrait avoir une partie publique avec affichage du matériel, en liste et en détails.
-Il faudrait une partie editeur qui permette d'ajouter/modifier/supprimer des matériels pédagogiques. Une authentification simple par identifiant/mot de passe devrait suffire.
-Peut être faudra-t-il une partie admin pour gérer les utilisateurs.
-### affichage
-Affichage public :
-- une page d'accueil avec barre de recherche et filtres
-- un affichage par liste filtrée de tous les matériels pédagogiques
-- un affichage en détail de chaque matériel
-Affichage éditeur :
-- lors d'un affichage en détail il faut pouvoir avoir un bouton modifier qui emmène vers un formulaire d'édition ainsi qu'un bouton de suppression, avec confirmation pour éviter les erreurs.
-- sur la page d'accueil il y aura un bouton 'ajouter' pour gérer les ajouts.
-### édition/ajout
-le formulaire doit permettre de modifier/ajouter tous les champs d'un objet, ainsi que gérer l'image désirée par cloudinary si possible.
-Dans la version mobile si on peut ajouter l'option pour prendre la photo directement ce serait l'idéal.
+- Nuxt 4 avec les répertoires `app/` et `server/`.
+- Vuetify reste la bibliothèque d'interface.
+- NuxtHub utilise SQLite en local et Cloudflare D1 en production.
+- Drizzle ORM décrit le schéma et les migrations.
+- `nuxt-auth-utils` gère les sessions chiffrées côté serveur.
+- Cloudinary stocke les images.
+- Les utilisateurs possèdent un rôle `admin` ou `editor`.
+- Les ajouts et modifications courants se font dans l'application. Le fichier Excel a servi uniquement à l'initialisation.
 
-## technologies
-je veux une application nuxt sécurisée notamment avec BFF sécurisé pour les appels API et la sécurité des tokens, qui serait déployée par nuxt-hub et cloudflare et dont les sources seraient sur github. C'est le cas pour le projet actuel juno-matos. Il se déploie sur https://juno-matos.julien-colombeau.workers.dev.
-L'interface pourrait être en vuetify.
-La gestion des images se fera par cloudinary si possible avec une solution pour migrer de façon simple les images actuelles de Google drive à cloudinary sans devoir récupérer tous les liens à la main.
+## État fonctionnel actuel
 
-## état actuel
+Le catalogue public propose la recherche, les filtres, la pagination et les pages de détail. L'interface éditeur propose la création, la modification, la suppression avec confirmation, la validation des champs et l'upload d'image depuis un fichier ou un appareil mobile.
 
-Le fichier Excel a été traité et les images accessibles ont été migrées vers Cloudinary. Les ajouts, modifications et suppressions se feront désormais uniquement dans l'application.
+L'API protège toutes les écritures par session et rôle. Les clés Cloudinary restent côté serveur. Le premier administrateur a été créé localement, puis les données locales ont été transférées dans D1.
 
-L'authentification de base est en place avec `nuxt-auth-utils`. L'administrateur principal est créé localement et le secret temporaire `NUXT_BOOTSTRAP_SECRET` a été supprimé après son utilisation.
+## Données de production
 
-Pour les tests locaux sous Windows, utiliser `http://localhost:3000`. L'adresse `http://127.0.0.1:3000` peut ne pas être joignable dans l'environnement de développement actuel.
+La base D1 `juno-matos-db` contient :
+
+- 289 matériels ;
+- 1 administrateur principal ;
+- 10 domaines ;
+- 6 types ;
+- 18 thèmes ;
+- 39 lieux ;
+- 13 valeurs d'âge ;
+- les références Cloudinary des images migrées.
+
+Les migrations `0000_initial-schema.sql` et `0001_add-source-image-url.sql` sont appliquées. `wrangler.jsonc` déclare la base et le dossier de migrations.
+
+## Environnement local
+
+Le projet utilise `http://localhost:3000` sous Windows. `127.0.0.1` peut ne pas être joignable dans l'environnement actuel.
+
+Les secrets locaux restent dans `.env`. Le dépôt contient uniquement `.env.example`. Le secret temporaire `NUXT_BOOTSTRAP_SECRET` a été supprimé après la création de l'administrateur local.
+
+## Prochaines étapes
+
+1. Vérifier les variables et secrets dans l'environnement Production Cloudflare.
+2. Tester en production la connexion, le catalogue, le CRUD et l'upload Cloudinary.
+3. Vérifier les permissions `admin`, `editor` et visiteur.
+4. Ajouter l'administration des utilisateurs.
+5. Effectuer la revue d'accessibilité et documenter le retour arrière.

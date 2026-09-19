@@ -43,7 +43,9 @@ const theme = ref('')
 const lieu = ref('')
 const age = ref('')
 const page = ref(1)
+const mobileFiltersOpen = ref(false)
 const { loggedIn } = useUserSession()
+const { smAndUp } = useDisplay()
 
 const { data: references } = await useFetch<ReferencesResponse>('/api/references')
 const query = computed(() => ({
@@ -69,8 +71,8 @@ watch([search, domaine, type, theme, lieu, age], () => {
 })
 
 useSeoMeta({
-  title: 'Juno-Matos - Matériel pédagogique',
-  description: 'Recherchez et consultez le catalogue de matériel pédagogique.',
+  title: 'Juno-Matos',
+  description: 'Consultez le catalogue de matériel pédagogique.',
 })
 
 function clearFilters() {
@@ -81,6 +83,7 @@ function clearFilters() {
   lieu.value = ''
   age.value = ''
   page.value = 1
+  mobileFiltersOpen.value = false
 }
 
 function playersLabel(material: Material): string | null {
@@ -92,25 +95,28 @@ function playersLabel(material: Material): string | null {
 
 <template>
   <main>
-    <section class="mb-8">
-      <p class="text-overline text-primary mb-2">Catalogue pédagogique</p>
-      <h1 class="text-h2 text-md-h1 mb-3">Trouvez le matériel adapté</h1>
-      <p class="text-body-1 text-medium-emphasis">
-        Recherchez une fiche par nom, domaine, type, thème ou lieu.
-      </p>
+    <section class="mb-6">
+      <h1 class="text-h3 text-md-h2 mb-0">Juno-Matos</h1>
     </section>
 
-    <v-card class="mb-8" variant="tonal">
+    <v-text-field
+      v-model="search"
+      label="Rechercher"
+      placeholder="Nom, description ou commentaire"
+      prepend-inner-icon="mdi-magnify"
+      clearable
+      hide-details
+      class="mb-4"
+    />
+
+    <div v-if="!smAndUp" class="d-flex justify-end mb-4">
+      <v-btn variant="tonal" prepend-icon="mdi-filter" @click="mobileFiltersOpen = true">
+        Filtres
+      </v-btn>
+    </div>
+
+    <v-card v-if="smAndUp" class="mb-8" variant="tonal">
       <v-card-text>
-        <v-text-field
-          v-model="search"
-          label="Rechercher"
-          placeholder="Nom, description ou commentaire"
-          prepend-inner-icon="mdi-magnify"
-          clearable
-          hide-details
-          class="mb-4"
-        />
         <v-row>
           <v-col cols="12" sm="6" md="4">
             <v-select v-model="domaine" :items="references?.domaines" item-title="nom" item-value="nom" label="Domaine" clearable hide-details />
@@ -136,15 +142,47 @@ function playersLabel(material: Material): string | null {
       </v-card-text>
     </v-card>
 
+    <v-dialog v-model="mobileFiltersOpen" max-width="560">
+      <v-card>
+        <v-card-title>Filtres</v-card-title>
+        <v-card-text>
+          <v-row dense>
+            <v-col cols="12">
+              <v-select v-model="domaine" :items="references?.domaines" item-title="nom" item-value="nom" label="Domaine" clearable hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-select v-model="type" :items="references?.types" item-title="nom" item-value="nom" label="Type" clearable hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-select v-model="theme" :items="references?.themes" item-title="nom" item-value="nom" label="Thème" clearable hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-select v-model="lieu" :items="references?.lieux" item-title="nom" item-value="nom" label="Lieu" clearable hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-select v-model="age" :items="references?.ages" item-title="nom" item-value="nom" label="Âge minimum" clearable hide-details />
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions class="justify-space-between">
+          <v-btn variant="text" @click="clearFilters">Réinitialiser</v-btn>
+          <v-btn color="primary" @click="mobileFiltersOpen = false">Appliquer</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <div class="d-flex align-center justify-space-between mb-4">
-      <h2 class="text-h5">Matériel disponible</h2>
-      <div class="d-flex align-center ga-3">
+      <h2 class="text-h5 mb-0">Matériel disponible</h2>
+      <div class="d-flex align-center ga-2">
         <span class="text-body-2 text-medium-emphasis">{{ response?.pagination.total ?? 0 }} résultat(s)</span>
-        <v-btn v-if="loggedIn" to="/materials/new" color="primary" prepend-icon="mdi-plus">
+        <v-btn v-if="loggedIn" to="/materials/new" color="primary" prepend-icon="mdi-plus" class="d-none d-sm-inline-flex" size="small">
           Ajouter
         </v-btn>
       </div>
     </div>
+    <v-btn v-if="loggedIn" to="/materials/new" color="primary" prepend-icon="mdi-plus" class="mb-4 d-sm-none" block>
+      Ajouter
+    </v-btn>
 
     <v-alert v-if="error" type="error" class="mb-4">
       Le catalogue est momentanément indisponible.
@@ -156,7 +194,7 @@ function playersLabel(material: Material): string | null {
 
     <v-row v-else>
       <v-col v-for="material in response?.data" :key="material.id" cols="12" sm="6" lg="4">
-        <v-card class="h-100 d-flex flex-column" :to="`/materials/${material.id}`">
+        <v-card class="h-100 d-flex flex-column" :to="`/materials/${material.id}`" rounded="xl" elevation="2">
           <v-img
             v-if="material.cloudinaryUrl"
             :src="material.cloudinaryUrl"
@@ -167,22 +205,22 @@ function playersLabel(material: Material): string | null {
           <v-sheet v-else color="grey-lighten-3" height="220" class="d-flex align-center justify-center">
             <span class="text-medium-emphasis">Aucune image</span>
           </v-sheet>
-          <v-card-item>
-            <v-card-title>{{ material.nom }}</v-card-title>
+          <v-card-item class="pb-2">
+            <v-card-title class="text-wrap">{{ material.nom }}</v-card-title>
             <v-card-subtitle>{{ material.domaine || 'Domaine non renseigné' }}</v-card-subtitle>
           </v-card-item>
-          <v-card-text class="flex-grow-1">
+          <v-card-text class="flex-grow-1 pt-0">
             <div class="d-flex flex-wrap ga-2 mb-3">
               <v-chip v-if="material.type" size="small">{{ material.type }}</v-chip>
               <v-chip v-if="material.ageMin !== null" size="small" variant="outlined">Dès {{ material.ageMin }} ans</v-chip>
               <v-chip v-if="playersLabel(material)" size="small" variant="outlined">{{ playersLabel(material) }}</v-chip>
             </div>
-            <p v-if="material.description" class="text-body-2 text-medium-emphasis line-clamp-3">
+            <p v-if="material.description" class="text-body-2 text-medium-emphasis line-clamp-3 mb-0">
               {{ material.description }}
             </p>
           </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" variant="text" append-icon="mdi-arrow-right">
+          <v-card-actions class="pt-0">
+            <v-btn color="primary" variant="text" append-icon="mdi-arrow-right" density="comfortable">
               Voir la fiche
             </v-btn>
           </v-card-actions>

@@ -42,7 +42,7 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const { data: references } = await useFetch<ReferencesResponse>('/api/references')
+const { data: references, refresh: refreshReferences } = await useFetch<ReferencesResponse>('/api/references')
 const form = reactive<MaterialFormValue>({
   nom: props.initialValue.nom ?? '',
   domaine: props.initialValue.domaine ?? null,
@@ -57,6 +57,37 @@ const form = reactive<MaterialFormValue>({
   cloudinaryPublicId: props.initialValue.cloudinaryPublicId ?? null,
   cloudinaryUrl: props.initialValue.cloudinaryUrl ?? null,
 })
+
+const referenceKeyMap = {
+  domaines: 'domaine',
+  types: 'type',
+  themes: 'theme',
+} as const
+
+type ReferenceKind = keyof typeof referenceKeyMap
+
+function referenceOptions(kind: ReferenceKind) {
+  return references.value?.[kind] ?? []
+}
+
+async function ensureReference(kind: ReferenceKind, value: string | null) {
+  const candidate = value?.trim()
+  if (!candidate) {
+    form[referenceKeyMap[kind]] = null
+    return
+  }
+
+  const existing = referenceOptions(kind).some((item) => String(item.nom).toLowerCase() === candidate.toLowerCase())
+  if (!existing) {
+    await $fetch('/api/references', {
+      method: 'POST',
+      body: { kind, nom: candidate },
+    })
+    await refreshReferences()
+  }
+
+  form[referenceKeyMap[kind]] = candidate
+}
 
 const valid = ref(false)
 const selectedFile = ref<File | null>(null)
@@ -142,13 +173,40 @@ onUnmounted(() => {
         />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-select v-model="form.domaine" :items="references?.domaines" item-title="nom" item-value="nom" label="Domaine" clearable />
+        <v-combobox
+          :model-value="form.domaine"
+          :items="referenceOptions('domaines')"
+          item-title="nom"
+          item-value="nom"
+          label="Domaine"
+          clearable
+          :allow-custom="true"
+          @update:model-value="(value) => ensureReference('domaines', value as string | null)"
+        />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-select v-model="form.type" :items="references?.types" item-title="nom" item-value="nom" label="Type" clearable />
+        <v-combobox
+          :model-value="form.type"
+          :items="referenceOptions('types')"
+          item-title="nom"
+          item-value="nom"
+          label="Type"
+          clearable
+          :allow-custom="true"
+          @update:model-value="(value) => ensureReference('types', value as string | null)"
+        />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-select v-model="form.theme" :items="references?.themes" item-title="nom" item-value="nom" label="Thème" clearable />
+        <v-combobox
+          :model-value="form.theme"
+          :items="referenceOptions('themes')"
+          item-title="nom"
+          item-value="nom"
+          label="Thème"
+          clearable
+          :allow-custom="true"
+          @update:model-value="(value) => ensureReference('themes', value as string | null)"
+        />
       </v-col>
       <v-col cols="12" sm="6">
         <v-select v-model="form.lieu" :items="references?.lieux" item-title="nom" item-value="nom" label="Lieu" clearable />

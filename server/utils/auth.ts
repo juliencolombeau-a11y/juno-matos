@@ -31,10 +31,24 @@ export async function findUserByEmail(email: string) {
   return rows[0] ?? null
 }
 
-export async function requireEditor(event: Parameters<typeof requireUserSession>[0]) {
+export async function requireRole(
+  event: Parameters<typeof requireUserSession>[0],
+  allowedRoles: Array<'admin' | 'editor'>,
+) {
   const session = await requireUserSession(event)
-  if (session.user?.role !== 'admin' && session.user?.role !== 'editor') {
+  const role = session.user?.role
+
+  if (!role || !allowedRoles.includes(role)) {
     throw createError({ statusCode: 403, statusMessage: 'Droits insuffisants.' })
   }
+
   return session
+}
+
+export async function requireEditor(event: Parameters<typeof requireUserSession>[0]) {
+  return requireRole(event, ['admin', 'editor'])
+}
+
+export async function requireAdmin(event: Parameters<typeof requireUserSession>[0]) {
+  return requireRole(event, ['admin'])
 }

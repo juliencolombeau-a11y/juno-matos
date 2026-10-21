@@ -19,6 +19,11 @@ export default defineNuxtConfig({
       : 'sqlite',
     blob: false,
   },
+  nitro: {
+    plugins: process.env.NITRO_PRESET === 'cloudflare_module'
+      ? ['./plugins/cloudflare-session-password']
+      : [],
+  },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME
   },

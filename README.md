@@ -48,6 +48,19 @@ Configure these values in the Cloudflare Workers & Pages project for the Product
 
 `NUXT_BOOTSTRAP_SECRET` is temporary. Add it only when creating the first production administrator, then remove it and redeploy.
 
+## Automatic deployment
+
+`.github/workflows/deploy.yml` deploys the `main` branch to Cloudflare Workers after each push. Configure a GitHub Actions environment named `Production` with these values:
+
+| Name | GitHub environment setting |
+| --- | --- |
+| `CLOUDFLARE_D1_DATABASE_ID` | Variable |
+| `CLOUDINARY_CLOUD_NAME` | Variable |
+| `CLOUDFLARE_ACCOUNT_ID` | Secret |
+| `CLOUDFLARE_API_TOKEN` | Secret with permission to deploy Workers |
+
+Keep application runtime secrets, including `NUXT_SESSION_PASSWORD` and the Cloudinary API credentials, configured in the Cloudflare Worker environment. They are not required in GitHub Actions.
+
 ## D1 migrations and data transfer
 
 NuxtHub generates the production D1 binding from `CLOUDFLARE_D1_DATABASE_ID` during the build. Apply schema migrations with:

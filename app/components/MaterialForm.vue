@@ -134,9 +134,10 @@ async function uploadSelectedImage() {
     form.cloudinaryUrl = uploaded.url
     selectedFile.value = null
   } catch (error: unknown) {
-    imageError.value = error && typeof error === 'object' && 'data' in error
-      ? String((error as { data?: { statusMessage?: string } }).data?.statusMessage ?? 'Téléversement impossible.')
-      : 'Téléversement impossible.'
+    const responseData = error && typeof error === 'object' && 'data' in error
+      ? (error as { data?: { message?: string, statusMessage?: string } }).data
+      : undefined
+    imageError.value = responseData?.message ?? responseData?.statusMessage ?? 'Téléversement impossible.'
     throw error
   } finally {
     imageLoading.value = false

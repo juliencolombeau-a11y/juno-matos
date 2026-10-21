@@ -1,3 +1,7 @@
+/// <reference types="@cloudflare/workers-types" />
+
+import { env } from 'cloudflare:workers'
+
 export default defineEventHandler(async (event) => {
   const path = event.path
   const isSessionRoute = path.startsWith('/api/auth/')
@@ -10,12 +14,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const sessionConfig = useRuntimeConfig(event).session
-  let password = sessionConfig.password
-
-  if (!password) {
-    const { env } = await import('cloudflare:workers')
-    password = (env as typeof env & { NUXT_SESSION_PASSWORD?: string }).NUXT_SESSION_PASSWORD || ''
-  }
+  const workerEnv = env as typeof env & { NUXT_SESSION_PASSWORD?: string }
+  const password = sessionConfig.password || workerEnv.NUXT_SESSION_PASSWORD
 
   if (password) {
     sessionConfig.password = password

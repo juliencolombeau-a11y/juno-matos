@@ -22,6 +22,7 @@ export default defineNuxtConfig({
   nitro: {
     cloudflare: {
       wrangler: {
+        compatibility_date: '2026-08-04',
         compatibility_flags: ['nodejs_compat_populate_process_env'],
       },
     },

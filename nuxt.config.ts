@@ -31,6 +31,7 @@ export default defineNuxtConfig({
     cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
     cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
     bootstrapSecret: process.env.NUXT_BOOTSTRAP_SECRET,
+    adminPasswordResetSecret: process.env.NUXT_ADMIN_PASSWORD_RESET_SECRET,
     session: {
       password: process.env.NUXT_SESSION_PASSWORD || '',
     },

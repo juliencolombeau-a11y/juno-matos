@@ -19,6 +19,12 @@ const role = ref<'admin' | 'editor'>('editor')
 const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordLoading = ref(false)
+const passwordErrorMessage = ref('')
+const passwordSuccessMessage = ref('')
 
 const { data: usersResponse, refresh } = await useFetch<{ users: User[] }>('/api/admin/users', {
   server: false,
@@ -52,6 +58,38 @@ async function createUser() {
       : 'Impossible de créer ce compte.'
   } finally {
     loading.value = false
+  }
+}
+
+async function changePassword() {
+  passwordErrorMessage.value = ''
+  passwordSuccessMessage.value = ''
+
+  if (newPassword.value !== confirmPassword.value) {
+    passwordErrorMessage.value = 'Les nouveaux mots de passe ne correspondent pas.'
+    return
+  }
+
+  passwordLoading.value = true
+
+  try {
+    await $fetch('/api/auth/password', {
+      method: 'PATCH',
+      body: {
+        currentPassword: currentPassword.value,
+        newPassword: newPassword.value,
+      },
+    })
+    passwordSuccessMessage.value = 'Le mot de passe a été modifié.'
+    currentPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+  } catch (error: unknown) {
+    passwordErrorMessage.value = error && typeof error === 'object' && 'data' in error
+      ? String((error as { data?: { statusMessage?: string } }).data?.statusMessage ?? 'Impossible de modifier le mot de passe.')
+      : 'Impossible de modifier le mot de passe.'
+  } finally {
+    passwordLoading.value = false
   }
 }
 
@@ -110,6 +148,49 @@ useSeoMeta({
               />
               <v-btn type="submit" color="primary" block :loading="loading">
                 Créer le compte
+              </v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+
+        <v-card class="mt-4">
+          <v-card-title>Modifier mon mot de passe</v-card-title>
+          <v-card-text>
+            <v-alert v-if="passwordErrorMessage" type="error" variant="tonal" class="mb-4">
+              {{ passwordErrorMessage }}
+            </v-alert>
+            <v-alert v-if="passwordSuccessMessage" type="success" variant="tonal" class="mb-4">
+              {{ passwordSuccessMessage }}
+            </v-alert>
+
+            <v-form @submit.prevent="changePassword">
+              <v-text-field
+                v-model="currentPassword"
+                label="Mot de passe actuel"
+                type="password"
+                autocomplete="current-password"
+                required
+              />
+              <v-text-field
+                v-model="newPassword"
+                label="Nouveau mot de passe (12 caractères minimum)"
+                type="password"
+                autocomplete="new-password"
+                minlength="12"
+                maxlength="128"
+                required
+              />
+              <v-text-field
+                v-model="confirmPassword"
+                label="Confirmer le nouveau mot de passe"
+                type="password"
+                autocomplete="new-password"
+                minlength="12"
+                maxlength="128"
+                required
+              />
+              <v-btn type="submit" color="primary" block :loading="passwordLoading">
+                Modifier le mot de passe
               </v-btn>
             </v-form>
           </v-card-text>

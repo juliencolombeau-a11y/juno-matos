@@ -44,12 +44,14 @@ async function logout() {
         <v-btn icon variant="text" @click="toggleTheme" :aria-label="prefersDark ? 'Passer en mode clair' : 'Passer en mode sombre'">
           <v-icon :icon="prefersDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
         </v-btn>
-        <v-btn v-if="!loggedIn" to="/login" variant="text" prepend-icon="mdi-login" class="d-none d-sm-inline-flex">
-          Connexion
-        </v-btn>
-        <v-btn v-else-if="!loggedIn" to="/login" variant="text" icon class="d-sm-none" aria-label="Connexion">
-          <v-icon icon="mdi-login" />
-        </v-btn>
+        <template v-if="!loggedIn">
+          <v-btn to="/login" variant="text" prepend-icon="mdi-login" class="d-none d-sm-inline-flex">
+            Connexion
+          </v-btn>
+          <v-btn to="/login" variant="text" icon class="d-sm-none" aria-label="Connexion">
+            <v-icon icon="mdi-login" />
+          </v-btn>
+        </template>
         <template v-else>
           <v-btn
             v-if="user?.role === 'admin'"

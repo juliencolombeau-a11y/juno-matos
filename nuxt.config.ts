@@ -19,14 +19,6 @@ export default defineNuxtConfig({
       : 'sqlite',
     blob: false,
   },
-  nitro: {
-    cloudflare: {
-      wrangler: {
-        compatibility_date: '2026-08-04',
-        compatibility_flags: ['nodejs_compat_populate_process_env'],
-      },
-    },
-  },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME
   },

@@ -23,6 +23,7 @@ jobs:
       CLOUDINARY_CLOUD_NAME: ${{ vars.CLOUDINARY_CLOUD_NAME }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      NUXT_SESSION_PASSWORD: ${{ secrets.NUXT_SESSION_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +36,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
+
+      - name: Validate session secret
+        run: node -e 'if (!process.env.NUXT_SESSION_PASSWORD || process.env.NUXT_SESSION_PASSWORD.length < 32) { console.error("Set the Production environment secret NUXT_SESSION_PASSWORD to a value of at least 32 characters."); process.exit(1) }'
 
       - name: Typecheck
         run: npx nuxt typecheck

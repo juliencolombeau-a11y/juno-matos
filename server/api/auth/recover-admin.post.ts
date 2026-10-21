@@ -5,10 +5,17 @@ import { normalizeEmail, validatePassword } from '../../utils/auth'
 const adminEmail = 'julien.colombeau@gmail.com'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
+  const resetSecret = process.env.NUXT_ADMIN_PASSWORD_RESET_SECRET
   const providedSecret = getHeader(event, 'x-admin-password-reset-secret')
 
-  if (!config.adminPasswordResetSecret || providedSecret !== config.adminPasswordResetSecret) {
+  if (!resetSecret) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Le secret de récupération n’est pas configuré sur ce Worker.',
+    })
+  }
+
+  if (providedSecret !== resetSecret) {
     throw createError({ statusCode: 401, statusMessage: 'Autorisation de récupération invalide.' })
   }
 

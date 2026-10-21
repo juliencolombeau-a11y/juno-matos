@@ -57,11 +57,12 @@ async function insertReferences(workbook: XLSX.WorkBook): Promise<number> {
       continue
     }
 
-    const result = await db
+    const inserted = await db
       .insert(schema.domaines)
       .values({ id, nom })
       .onConflictDoNothing()
-    referencesCreated += result.rowsAffected
+      .returning({ id: schema.domaines.id })
+    referencesCreated += inserted.length
   }
 
   const types = readRows(workbook, 'type')
@@ -72,11 +73,12 @@ async function insertReferences(workbook: XLSX.WorkBook): Promise<number> {
       continue
     }
 
-    const result = await db
+    const inserted = await db
       .insert(schema.types)
       .values({ id, nom })
       .onConflictDoNothing()
-    referencesCreated += result.rowsAffected
+      .returning({ id: schema.types.id })
+    referencesCreated += inserted.length
   }
 
   const themes = readRows(workbook, 'theme')
@@ -87,11 +89,12 @@ async function insertReferences(workbook: XLSX.WorkBook): Promise<number> {
       continue
     }
 
-    const result = await db
+    const inserted = await db
       .insert(schema.themes)
       .values({ id, nom })
       .onConflictDoNothing()
-    referencesCreated += result.rowsAffected
+      .returning({ id: schema.themes.id })
+    referencesCreated += inserted.length
   }
 
   const lieux = readRows(workbook, 'lieu')
@@ -102,11 +105,12 @@ async function insertReferences(workbook: XLSX.WorkBook): Promise<number> {
       continue
     }
 
-    const result = await db
+    const inserted = await db
       .insert(schema.lieux)
       .values({ id, nom })
       .onConflictDoNothing()
-    referencesCreated += result.rowsAffected
+      .returning({ id: schema.lieux.id })
+    referencesCreated += inserted.length
   }
 
   const ages = readRows(workbook, 'age')
@@ -117,11 +121,12 @@ async function insertReferences(workbook: XLSX.WorkBook): Promise<number> {
       continue
     }
 
-    const result = await db
+    const inserted = await db
       .insert(schema.ages)
       .values({ id, nom })
       .onConflictDoNothing()
-    referencesCreated += result.rowsAffected
+      .returning({ id: schema.ages.id })
+    referencesCreated += inserted.length
   }
 
   return referencesCreated

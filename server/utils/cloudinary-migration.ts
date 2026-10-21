@@ -1,5 +1,21 @@
 import { and, eq, isNotNull, isNull } from 'drizzle-orm'
+import type { H3Event } from 'h3'
+import { env } from 'cloudflare:workers'
 import { db, schema } from 'hub:db'
+
+export function getCloudinaryServerConfig(event: H3Event) {
+  const config = useRuntimeConfig(event)
+  const workerEnv = env as typeof env & {
+    CLOUDINARY_API_KEY?: string
+    CLOUDINARY_API_SECRET?: string
+  }
+
+  return {
+    cloudName: config.public.cloudinaryCloudName,
+    apiKey: workerEnv.CLOUDINARY_API_KEY || config.cloudinaryApiKey,
+    apiSecret: workerEnv.CLOUDINARY_API_SECRET || config.cloudinaryApiSecret,
+  }
+}
 
 export interface CloudinaryUploadResponse {
   public_id: string

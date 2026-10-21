@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { requireEditor } from '../../utils/auth'
-import { deleteCloudinaryImage } from '../../utils/cloudinary-migration'
+import { deleteCloudinaryImage, getCloudinaryServerConfig } from '../../utils/cloudinary-migration'
 import { parseMaterialInput } from '../../utils/material-validation'
 
 export default defineEventHandler(async (event) => {
@@ -31,12 +31,7 @@ export default defineEventHandler(async (event) => {
 
   if (existing.cloudinaryPublicId && existing.cloudinaryPublicId !== input.cloudinaryPublicId) {
     try {
-      const config = useRuntimeConfig(event)
-      await deleteCloudinaryImage(existing.cloudinaryPublicId, {
-        cloudName: config.public.cloudinaryCloudName,
-        apiKey: config.cloudinaryApiKey,
-        apiSecret: config.cloudinaryApiSecret,
-      })
+      await deleteCloudinaryImage(existing.cloudinaryPublicId, getCloudinaryServerConfig(event))
     } catch {
       throw createError({
         statusCode: 502,

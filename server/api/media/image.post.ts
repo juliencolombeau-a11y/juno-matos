@@ -1,9 +1,8 @@
 import { requireEditor } from '../../utils/auth'
-import { uploadImageBuffer } from '../../utils/cloudinary-migration'
+import { getCloudinaryServerConfig, uploadImageBuffer } from '../../utils/cloudinary-migration'
 
 export default defineEventHandler(async (event) => {
   await requireEditor(event)
-  const config = useRuntimeConfig(event)
   const parts = await readMultipartFormData(event)
   const file = parts?.find((part) => part.name === 'file')
 
@@ -14,6 +13,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 422, statusMessage: 'L’image ne doit pas dépasser 15 Mo.' })
   }
 
+  const config = getCloudinaryServerConfig(event)
+  if (!config.cloudName || !config.apiKey || !config.apiSecret) {
+    throw createError({
+      statusCode: 503,
+      message: 'La configuration Cloudinary serveur est incomplète.',
+    })
+  }
+
   const publicId = `juno-matos/editor-${crypto.randomUUID()}`
   try {
     const imageData = new Uint8Array(file.data).slice().buffer
@@ -21,15 +28,15 @@ export default defineEventHandler(async (event) => {
       imageData,
       file.type,
       publicId,
-      config.public.cloudinaryCloudName,
-      config.cloudinaryApiKey,
-      config.cloudinaryApiSecret,
+      config.cloudName,
+      config.apiKey,
+      config.apiSecret,
     )
     return { publicId: uploaded.public_id, url: uploaded.secure_url }
   } catch (error) {
     throw createError({
       statusCode: 502,
-      statusMessage: error instanceof Error ? error.message : 'Téléversement Cloudinary impossible.',
+      message: error instanceof Error ? error.message : 'Téléversement Cloudinary impossible.',
     })
   }
 })

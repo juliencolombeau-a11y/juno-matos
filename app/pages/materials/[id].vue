@@ -54,58 +54,62 @@ async function deleteMaterial() {
 
 <template>
   <div>
-    <v-btn to="/" variant="text" prepend-icon="mdi-arrow-left" class="mb-4">
-      Retour au catalogue
-    </v-btn>
+    <NuxtPage v-if="route.name === 'materials-id-edit'" />
 
-    <v-alert v-if="status === 'pending'" type="info">
-      Chargement de la fiche…
-    </v-alert>
-    <v-alert v-else-if="error" type="error">
-      Cette fiche n'est pas disponible.
-    </v-alert>
-    <v-row v-else-if="material">
-      <v-col cols="12" md="6">
-        <v-img
-          v-if="material.cloudinaryUrl"
-          :src="material.cloudinaryUrl"
-          :alt="`Image de ${material.nom}`"
-          aspect-ratio="4/3"
-          cover
-          class="rounded-lg"
-        />
-        <v-sheet v-else color="grey-lighten-3" aspect-ratio="4/3" class="d-flex align-center justify-center rounded-lg">
-          <span class="text-medium-emphasis">Aucune image disponible</span>
-        </v-sheet>
-      </v-col>
-      <v-col cols="12" md="6">
-        <div class="d-flex flex-wrap ga-2 mb-3">
-          <v-chip v-if="material.domaine" color="primary" size="small">{{ material.domaine }}</v-chip>
-          <v-chip v-if="material.type" size="small">{{ material.type }}</v-chip>
-        </div>
-        <h1 class="text-h3 mb-4">{{ material.nom }}</h1>
-        <v-alert v-if="deleteError" type="error" variant="tonal" class="mb-4">{{ deleteError }}</v-alert>
-        <p v-if="material.description" class="text-body-1 mb-6">{{ material.description }}</p>
-        <v-list density="compact" lines="two">
-          <v-list-item v-if="material.theme" title="Thème" :subtitle="material.theme" />
-          <v-list-item v-if="material.lieu" title="Lieu" :subtitle="material.lieu" />
-          <v-list-item title="Âge minimum" :subtitle="material.ageMin === null ? 'Non renseigné' : `${material.ageMin} ans`" />
-          <v-list-item title="Nombre de joueurs" :subtitle="formatPlayers(material)" />
-        </v-list>
-        <v-alert v-if="material.commentaire" class="mt-4" variant="tonal" type="info">
-          {{ material.commentaire }}
-        </v-alert>
-        <div v-if="loggedIn" class="d-flex flex-wrap ga-3 mt-6">
-          <NuxtLink :to="`/materials/${material.id}/edit`" custom v-slot="{ navigate }">
-            <v-btn color="primary" prepend-icon="mdi-pencil" @click="navigate">
-              Modifier
+    <template v-else>
+      <v-btn to="/" variant="text" prepend-icon="mdi-arrow-left" class="mb-4">
+        Retour au catalogue
+      </v-btn>
+
+      <v-alert v-if="status === 'pending'" type="info">
+        Chargement de la fiche…
+      </v-alert>
+      <v-alert v-else-if="error" type="error">
+        Cette fiche n'est pas disponible.
+      </v-alert>
+      <v-row v-else-if="material">
+        <v-col cols="12" md="6">
+          <v-img
+            v-if="material.cloudinaryUrl"
+            :src="material.cloudinaryUrl"
+            :alt="`Image de ${material.nom}`"
+            aspect-ratio="4/3"
+            cover
+            class="rounded-lg"
+          />
+          <v-sheet v-else color="grey-lighten-3" aspect-ratio="4/3" class="d-flex align-center justify-center rounded-lg">
+            <span class="text-medium-emphasis">Aucune image disponible</span>
+          </v-sheet>
+        </v-col>
+        <v-col cols="12" md="6">
+          <div class="d-flex flex-wrap ga-2 mb-3">
+            <v-chip v-if="material.domaine" color="primary" size="small">{{ material.domaine }}</v-chip>
+            <v-chip v-if="material.type" size="small">{{ material.type }}</v-chip>
+          </div>
+          <h1 class="text-h3 mb-4">{{ material.nom }}</h1>
+          <v-alert v-if="deleteError" type="error" variant="tonal" class="mb-4">{{ deleteError }}</v-alert>
+          <p v-if="material.description" class="text-body-1 mb-6">{{ material.description }}</p>
+          <v-list density="compact" lines="two">
+            <v-list-item v-if="material.theme" title="Thème" :subtitle="material.theme" />
+            <v-list-item v-if="material.lieu" title="Lieu" :subtitle="material.lieu" />
+            <v-list-item title="Âge minimum" :subtitle="material.ageMin === null ? 'Non renseigné' : `${material.ageMin} ans`" />
+            <v-list-item title="Nombre de joueurs" :subtitle="formatPlayers(material)" />
+          </v-list>
+          <v-alert v-if="material.commentaire" class="mt-4" variant="tonal" type="info">
+            {{ material.commentaire }}
+          </v-alert>
+          <div v-if="loggedIn" class="d-flex flex-wrap ga-3 mt-6">
+            <NuxtLink :to="`/materials/${material.id}/edit`" custom v-slot="{ navigate }">
+              <v-btn color="primary" prepend-icon="mdi-pencil" @click="navigate">
+                Modifier
+              </v-btn>
+            </NuxtLink>
+            <v-btn color="error" variant="outlined" prepend-icon="mdi-delete" :loading="deleting" @click="deleteMaterial">
+              Supprimer
             </v-btn>
-          </NuxtLink>
-          <v-btn color="error" variant="outlined" prepend-icon="mdi-delete" :loading="deleting" @click="deleteMaterial">
-            Supprimer
-          </v-btn>
-        </div>
-      </v-col>
-    </v-row>
+          </div>
+        </v-col>
+      </v-row>
+    </template>
   </div>
 </template>

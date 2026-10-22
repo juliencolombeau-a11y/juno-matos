@@ -14,10 +14,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = getCloudinaryServerConfig(event)
+  const missingConfig = [
+    !config.cloudName && 'CLOUDINARY_CLOUD_NAME',
+    !config.apiKey && 'CLOUDINARY_API_KEY',
+    !config.apiSecret && 'CLOUDINARY_API_SECRET',
+  ].filter(Boolean)
   if (!config.cloudName || !config.apiKey || !config.apiSecret) {
     throw createError({
       statusCode: 503,
-      message: 'La configuration Cloudinary serveur est incomplète.',
+      message: `Configuration Cloudinary serveur incomplète. Paramètre(s) absent(s) : ${missingConfig.join(', ')}.`,
     })
   }
 

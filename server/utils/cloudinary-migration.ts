@@ -6,12 +6,13 @@ import { db, schema } from 'hub:db'
 export function getCloudinaryServerConfig(event: H3Event) {
   const config = useRuntimeConfig(event)
   const workerEnv = env as typeof env & {
+    CLOUDINARY_CLOUD_NAME?: string
     CLOUDINARY_API_KEY?: string
     CLOUDINARY_API_SECRET?: string
   }
 
   return {
-    cloudName: config.public.cloudinaryCloudName,
+    cloudName: workerEnv.CLOUDINARY_CLOUD_NAME || config.public.cloudinaryCloudName,
     apiKey: workerEnv.CLOUDINARY_API_KEY || config.cloudinaryApiKey,
     apiSecret: workerEnv.CLOUDINARY_API_SECRET || config.cloudinaryApiSecret,
   }

@@ -96,9 +96,11 @@ async function deleteMaterial() {
           {{ material.commentaire }}
         </v-alert>
         <div v-if="loggedIn" class="d-flex flex-wrap ga-3 mt-6">
-          <v-btn :to="`/materials/${material.id}/edit`" color="primary" prepend-icon="mdi-pencil">
-            Modifier
-          </v-btn>
+          <NuxtLink :to="`/materials/${material.id}/edit`" custom v-slot="{ navigate }">
+            <v-btn color="primary" prepend-icon="mdi-pencil" @click="navigate">
+              Modifier
+            </v-btn>
+          </NuxtLink>
           <v-btn color="error" variant="outlined" prepend-icon="mdi-delete" :loading="deleting" @click="deleteMaterial">
             Supprimer
           </v-btn>

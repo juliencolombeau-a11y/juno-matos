@@ -48,3 +48,20 @@ jobs:
 
       - name: Deploy Worker
         run: npx wrangler deploy --config .output/server/wrangler.json --keep-vars
+
+      - name: Verify Cloudinary secret bindings
+        run: |
+          npx wrangler secret list --config .output/server/wrangler.json --format json | node -e '
+            let input = "";
+            process.stdin.on("data", chunk => input += chunk);
+            process.stdin.on("end", () => {
+              const secrets = JSON.parse(input);
+              const names = new Set(secrets.map(secret => secret.name));
+              const missing = ["CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"].filter(name => !names.has(name));
+              if (missing.length) {
+                console.error(`Cloudflare Worker is missing required secret bindings: ${missing.join(", ")}`);
+                process.exit(1);
+              }
+              console.log("Cloudinary secret bindings are configured.");
+            });
+          '

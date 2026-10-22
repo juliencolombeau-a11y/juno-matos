@@ -1,15 +1,14 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { eq } from 'drizzle-orm'
-import { env } from 'cloudflare:workers'
 import { db, schema } from 'hub:db'
 import { normalizeEmail, validatePassword } from '../../utils/auth'
 
 const adminEmail = 'julien.colombeau@gmail.com'
 
 export default defineEventHandler(async (event) => {
-  const workerEnv = env as typeof env & { NUXT_ADMIN_PASSWORD_RESET_SECRET?: string }
-  const resetSecret = workerEnv.NUXT_ADMIN_PASSWORD_RESET_SECRET
+  const workerEnv = event.context.cloudflare?.env as { NUXT_ADMIN_PASSWORD_RESET_SECRET?: string } | undefined
+  const resetSecret = workerEnv?.NUXT_ADMIN_PASSWORD_RESET_SECRET
   const providedSecret = getHeader(event, 'x-admin-password-reset-secret')
 
   if (!resetSecret) {

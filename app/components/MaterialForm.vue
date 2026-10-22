@@ -70,8 +70,21 @@ function referenceOptions(kind: ReferenceKind) {
   return references.value?.[kind] ?? []
 }
 
-async function ensureReference(kind: ReferenceKind, value: string | null) {
-  const candidate = value?.trim()
+async function ensureReference(kind: ReferenceKind, value: unknown) {
+  if (value === null || value === undefined) {
+    form[referenceKeyMap[kind]] = null
+    return
+  }
+
+  const referenceName = typeof value === 'string'
+    ? value
+    : typeof value === 'object' && 'nom' in value
+      && (typeof value.nom === 'string' || typeof value.nom === 'number')
+      ? String(value.nom)
+      : null
+  if (referenceName === null) return
+
+  const candidate = referenceName.trim()
   if (!candidate) {
     form[referenceKeyMap[kind]] = null
     return
@@ -182,7 +195,7 @@ onUnmounted(() => {
           label="Domaine"
           clearable
           :allow-custom="true"
-          @update:model-value="(value) => ensureReference('domaines', value as string | null)"
+          @update:model-value="(value) => ensureReference('domaines', value)"
         />
       </v-col>
       <v-col cols="12" sm="6">
@@ -194,7 +207,7 @@ onUnmounted(() => {
           label="Type"
           clearable
           :allow-custom="true"
-          @update:model-value="(value) => ensureReference('types', value as string | null)"
+          @update:model-value="(value) => ensureReference('types', value)"
         />
       </v-col>
       <v-col cols="12" sm="6">
@@ -206,7 +219,7 @@ onUnmounted(() => {
           label="Thème"
           clearable
           :allow-custom="true"
-          @update:model-value="(value) => ensureReference('themes', value as string | null)"
+          @update:model-value="(value) => ensureReference('themes', value)"
         />
       </v-col>
       <v-col cols="12" sm="6">

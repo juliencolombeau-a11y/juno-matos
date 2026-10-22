@@ -40,6 +40,12 @@ jobs:
       - name: Validate session secret
         run: node -e 'if (!process.env.NUXT_SESSION_PASSWORD || process.env.NUXT_SESSION_PASSWORD.length < 32) { console.error("Set the Production environment secret NUXT_SESSION_PASSWORD to a value of at least 32 characters."); process.exit(1) }'
 
+      - name: Validate Cloudinary secrets
+        env:
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: node -e 'if (!process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) { console.error("Set the Production environment secrets CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET."); process.exit(1) }'
+
       - name: Typecheck
         run: npx nuxt typecheck
 
@@ -48,6 +54,14 @@ jobs:
 
       - name: Deploy Worker
         run: npx wrangler deploy --config .output/server/wrangler.json --keep-vars
+
+      - name: Sync Cloudinary secrets to Worker
+        env:
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: |
+          printf '%s' "$CLOUDINARY_API_KEY" | npx wrangler secret put CLOUDINARY_API_KEY --config .output/server/wrangler.json
+          printf '%s' "$CLOUDINARY_API_SECRET" | npx wrangler secret put CLOUDINARY_API_SECRET --config .output/server/wrangler.json
 
       - name: Verify Cloudinary secret bindings
         run: |

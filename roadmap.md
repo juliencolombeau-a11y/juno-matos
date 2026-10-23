@@ -23,7 +23,7 @@ Cette feuille de route s'appuie sur `GEMINI.md`, `contexte.md` et `questions.md`
 
 Le socle métier, le traitement initial du fichier Excel, la migration Cloudinary, l'API publique, l'authentification, l'API CRUD et l'interface éditeur sont en place.
 
-La base D1 `juno-matos-db` est créée et contient les migrations ainsi que les données initiales. Le code est poussé sur GitHub et un déploiement Cloudflare a été lancé.
+La base D1 `juno-matos-db` est créée et contient les migrations ainsi que les données initiales. Le code est poussé sur GitHub et le déploiement Cloudflare est opérationnel.
 
 ### Données transférées vers D1
 
@@ -36,11 +36,11 @@ La base D1 `juno-matos-db` est créée et contient les migrations ainsi que les 
 - 13 valeurs d'âge ;
 - les identifiants et URLs Cloudinary des images migrées.
 
-## 3. Points techniques à régler avant le développement métier
+## 3. Points techniques et maintenance
 
 1. **Conserver la version de Vuetify installée.** Le projet référence actuellement `vuetify` `4.2.1`. Cette version est utilisée comme base, puis mise à jour avec le gestionnaire de paquets lorsque des correctifs de sécurité ou de compatibilité sont publiés.
-2. **Retenir une session chiffrée compatible Cloudflare.** Le projet utilise `nuxt-auth-utils`, avec une session stockée dans un cookie sécurisé et chiffré. Le test de compatibilité Cloudflare reste à confirmer en production.
-3. **Confirmer la configuration des migrations NuxtHub.** Les migrations sont appliquées localement et sur la base D1 via Wrangler.
+2. **Retenir une session chiffrée compatible Cloudflare.** Le projet utilise `nuxt-auth-utils`, avec une session stockée dans un cookie sécurisé et chiffré. Le fonctionnement a été vérifié en production.
+3. **Appliquer les migrations NuxtHub.** Les migrations sont appliquées localement et sur la base D1 via Wrangler.
 4. **Conserver la traçabilité de l'import initial.** Le mapping du classeur et les identifiants `legacyId` documentent l'origine des données, mais aucun nouvel import Excel n'est prévu.
 5. **Ne jamais exposer les secrets Cloudinary.** `CLOUDINARY_API_KEY` et `CLOUDINARY_API_SECRET` restent uniquement accessibles au serveur pour les opérations d'image.
 
@@ -155,7 +155,7 @@ C'est la prochaine phase après la mise en place du catalogue public. Les script
 - [x] Ajouter une procédure contrôlée pour créer le premier administrateur.
 - [x] Ne jamais renvoyer `passwordHash` dans une réponse API.
 
-**Résultat partiel :** la connexion, la déconnexion, la session chiffrée et la création contrôlée du premier administrateur sont en place. L'administrateur principal est créé et `NUXT_BOOTSTRAP_SECRET` a été supprimé. La protection des futures routes CRUD et la vérification Cloudflare restent à terminer.
+**Résultat :** la connexion, la déconnexion, la session chiffrée et la création contrôlée du premier administrateur sont en place. L'administrateur principal est créé et `NUXT_BOOTSTRAP_SECRET` a été supprimé. Les routes CRUD et les sessions ont été vérifiées en production.
 
 ## 8. Phase 5 — API métier
 
@@ -170,6 +170,8 @@ C'est la prochaine phase après la mise en place du catalogue public. Les script
 - [x] Traiter la migration initiale des images Google Drive vers Cloudinary.
 - [x] Valider les champs obligatoires, les nombres et les tailles de texte côté serveur.
 - [x] Utiliser des requêtes paramétrées et limiter la quantité de données renvoyée.
+- [x] Normaliser la recherche pour ignorer la casse et les accents dans les noms, descriptions et commentaires.
+- [x] Trier les résultats côté serveur par date ou par nom, avant la pagination.
 - [x] Retourner des codes HTTP et des messages d'erreur cohérents.
 - [x] Prévoir la suppression ou le remplacement de l'image Cloudinary lorsqu'une fiche est supprimée ou modifiée.
 
@@ -181,12 +183,17 @@ C'est la prochaine phase après la mise en place du catalogue public. Les script
 
 - [x] Créer le layout principal et la navigation responsive.
 - [x] Construire la page d'accueil avec recherche globale.
+- [x] Ajouter le tri par date (du plus récent au plus ancien et inversement) et par nom (A-Z et Z-A).
+- [x] Rendre la recherche insensible à la casse et aux accents, y compris sur les caractères accentués saisis ou absents.
 - [x] Ajouter les filtres par domaine, type, thème, lieu et âge.
 - [x] Afficher les résultats sous forme de cartes ou de liste adaptée à la taille d'écran.
 - [x] Ajouter une pagination pour environ 1 000 fiches.
 - [x] Afficher un état de chargement, un état vide et un état d'erreur.
 - [x] Créer la page de détail `/materials/:id`.
 - [x] Afficher l'image Cloudinary ou un état explicite lorsqu'elle manque.
+- [x] Vérifier en production les quatre tris et l'équivalence des recherches `mémory`, `memory`, `Memory` et `MEMORY`.
+- [x] Départager les dates identiques par identifiant : ordre croissant pour « plus ancien » et décroissant pour « plus récent ».
+- [x] Comparer les noms sans tenir compte de la casse ni des accents.
 - [ ] Afficher les dates de création et de modification selon le besoin fonctionnel.
 - [x] Afficher les actions d'édition uniquement pour les utilisateurs connectés.
 - [ ] Vérifier la navigation au clavier, les libellés des contrôles, les contrastes et les textes alternatifs.
@@ -229,10 +236,9 @@ C'est la prochaine phase après la mise en place du catalogue public. Les script
 
 **Objectif :** publier une version reproductible et sécurisée.
 
-- [ ] Configurer et vérifier les variables d'environnement et secrets dans l'environnement de production.
-- [ ] Utiliser une valeur forte pour le secret de session.
-- [ ] Configurer `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` et `CLOUDINARY_API_SECRET` uniquement côté serveur.
-- [ ] Configurer `NUXT_SESSION_PASSWORD` avec une valeur aléatoire d'au moins 32 caractères.
+- [x] Configurer et vérifier les variables d'environnement et secrets dans l'environnement de production.
+- [x] Configurer `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` et `CLOUDINARY_API_SECRET` uniquement côté serveur.
+- [x] Configurer `NUXT_SESSION_PASSWORD` côté serveur et vérifier sa présence lors du déploiement.
 - [x] Appliquer les migrations sur la base D1 de production.
 - [x] Transférer les matériels, références, images Cloudinary et l'administrateur vers D1.
 - [x] Pousser le code sur GitHub et lancer le déploiement Cloudflare.
@@ -251,11 +257,14 @@ C'est la prochaine phase après la mise en place du catalogue public. Les script
 4. La base D1 `juno-matos-db` a été créée avec l'identifiant `fd36eea8-afac-4105-80d8-fdd7c114722b`.
 5. Les migrations `0000_initial-schema.sql` et `0001_add-source-image-url.sql` ont été appliquées à D1.
 6. Les données locales ont été exportées avec `npm run data:export`, puis importées avec Wrangler.
-7. Le code a été poussé sur GitHub et le déploiement Cloudflare a été lancé.
+7. Le code est poussé sur GitHub et le déploiement Cloudflare fonctionne via GitHub Actions.
+8. Le catalogue prend en charge le tri par date et par nom ; la recherche ignore la casse et les accents.
+9. Les quatre tris et l'équivalence des recherches `mémory`, `memory`, `Memory` et `MEMORY` ont été vérifiés sur l'API de production.
+10. Les matériels importés partagent la date de leur transfert vers D1. Leur ordre chronologique d'origine n'est donc pas connu ; les identifiants départagent ces dates identiques de façon déterministe.
 
 ### Reprise immédiate
 
-1. Vérifier périodiquement que les variables et secrets restent correctement configurés dans l'environnement Production Cloudflare.
+1. Vérifier périodiquement que les variables et secrets restent correctement configurés dans l'environnement Production Cloudflare, et confirmer que le secret de session respecte les exigences de longueur et d'aléa.
 2. Effectuer la revue d'accessibilité, notamment au clavier, sur mobile et avec les contrastes du thème sombre.
 3. Décider si les comptes doivent recevoir des fonctions de désactivation et de réinitialisation de mot de passe.
 

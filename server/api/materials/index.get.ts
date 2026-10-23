@@ -25,7 +25,7 @@ function normalizeSearch(value: string): string {
 function normalizeColumn(column: SQLWrapper) {
   let normalized = sql`lower(${column})`
   for (const [accented, plain] of accentReplacements) {
-    normalized = sql`replace(${normalized}, ${accented}, ${plain})`
+    normalized = sql`replace(${normalized}, ${sql.raw(`'${accented}'`)}, ${sql.raw(`'${plain}'`)})`
   }
   return normalized
 }

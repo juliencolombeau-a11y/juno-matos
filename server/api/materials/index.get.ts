@@ -64,10 +64,10 @@ export default defineEventHandler(async (event) => {
 
   const where = filters.length > 0 ? and(...filters) : undefined
   const sortOrders = {
-    newest: [desc(schema.materials.createdAt), asc(schema.materials.id)],
+    newest: [desc(schema.materials.createdAt), desc(schema.materials.id)],
     oldest: [asc(schema.materials.createdAt), asc(schema.materials.id)],
-    'name-asc': [asc(schema.materials.nom), asc(schema.materials.id)],
-    'name-desc': [desc(schema.materials.nom), asc(schema.materials.id)],
+    'name-asc': [asc(normalizeColumn(schema.materials.nom)), asc(schema.materials.id)],
+    'name-desc': [desc(normalizeColumn(schema.materials.nom)), asc(schema.materials.id)],
   } satisfies Record<'newest' | 'oldest' | 'name-asc' | 'name-desc', SQL[]>
   const [materials, countRows] = await Promise.all([
     db

@@ -42,6 +42,7 @@ const type = ref('')
 const theme = ref('')
 const lieu = ref('')
 const age = ref('')
+const sort = ref('newest')
 const page = ref(1)
 const mobileFiltersOpen = ref(false)
 const { loggedIn } = useUserSession()
@@ -55,6 +56,7 @@ const query = computed(() => ({
   theme: theme.value || undefined,
   lieu: lieu.value || undefined,
   age: age.value || undefined,
+  sort: sort.value,
   page: page.value,
 }))
 const { data: response, status, error } = await useFetch<MaterialsResponse>('/api/materials', {
@@ -66,7 +68,7 @@ const { data: response, status, error } = await useFetch<MaterialsResponse>('/ap
   }),
 })
 
-watch([search, domaine, type, theme, lieu, age], () => {
+watch([search, domaine, type, theme, lieu, age, sort], () => {
   page.value = 1
 })
 
@@ -105,6 +107,20 @@ function playersLabel(material: Material): string | null {
       placeholder="Nom, description ou commentaire"
       prepend-inner-icon="mdi-magnify"
       clearable
+      hide-details
+      class="mb-4"
+    />
+
+    <v-select
+      v-model="sort"
+      :items="[
+        { title: 'Date : du plus récent au plus ancien', value: 'newest' },
+        { title: 'Date : du plus ancien au plus récent', value: 'oldest' },
+        { title: 'Nom : A-Z', value: 'name-asc' },
+        { title: 'Nom : Z-A', value: 'name-desc' },
+      ]"
+      label="Trier par"
+      density="comfortable"
       hide-details
       class="mb-4"
     />
